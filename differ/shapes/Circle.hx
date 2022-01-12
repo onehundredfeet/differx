@@ -5,64 +5,51 @@ import differ.shapes.*;
 import differ.data.*;
 import differ.sat.*;
 
+import hvector.Float2;
+
 /** A circle collision shape */
 class Circle extends Shape {
 
         /** The radius of this circle. Set on construction */
     public var radius( get, never ) : Float;
-        /** The transformed radius of this circle, based on the scale/rotation */
-    public var transformedRadius( get, never ) : Float;
+    public var center( get, never ) : Float2;
+    
 
+    var _center : Float2;
     var _radius:Float;
-
-    public function new(x:Float, y:Float, radius:Float) {
-
-        super( x, y );
+    
+    public function new( radius:Float, ?center : Float2, ?original : Circle) {
+        super( original );
         _radius = radius;
-        name = 'circle ' + _radius;
-
+        _center = center == null ? new Float2(0., 0.) : center;
+        #if differ_autoname  name = 'circle ' + _radius; #end
     } //new
 
-        /** Test for collision against a shape. */
-    override public function test( shape:Shape, ?into:ShapeCollision ) : ShapeCollision {
+   
 
-        return shape.testCircle( this, into, true );
-
-    } //test
-
-        /** Test for collision against a circle. */
-    override public function testCircle( circle:Circle, ?into:ShapeCollision, flip:Bool = false ) : ShapeCollision {
-
-        return SAT2D.testCircleVsCircle( this, circle, into, flip );
-
-    } //testCircle
-
-        /** Test for collision against a polygon. */
-    override public function testPolygon( polygon:Polygon, ?into:ShapeCollision, flip:Bool = false ) : ShapeCollision {
-
-        return SAT2D.testCircleVsPolygon( this, polygon, into, flip );
-
-    } //testPolygon
-
-        /** Test for collision against a ray. */
-    override public function testRay( ray:Ray, ?into:RayCollision ) : RayCollision {
-
-        return SAT2D.testRayVsCircle(ray, this, into);
-
-    } //testRay
-
-//Internal API
-
-    function get_radius():Float {
+    inline function get_radius():Float {
 
         return _radius;
 
     } //get_radius
 
-    function get_transformedRadius():Float {
+    inline function get_center() : Float2 {
+        return _center;
+    }
 
-        return _radius * scaleX;
+    inline function set_center(v : Float2) : Float2 {
+        return _center = v;
+    }
 
+    public inline function transform(t : Transform, ?c : Circle) : Circle {
+        if (c == null) {
+            return new Circle(_radius * t.scale, t.matrix.transform(_center), cast _original );
+        }
+        c._center = t.matrix.transform(_center);
+        c._radius = _radius * t.scale;
+        c._original = _original;
+
+        return c;
     } //get_transformedRadius
 
 } //Circle

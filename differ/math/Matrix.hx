@@ -4,6 +4,8 @@ import differ.math.*;
 import differ.shapes.*;
 import differ.data.*;
 
+import hvector.*;
+
 //NOTE : Only implements the basics required for the shape transformations
 //NOTE : Not a full implementation, some code copied from openfl/flash/geom/Matrix.hx
 
@@ -49,11 +51,11 @@ class Matrix  {
 
     } //translate
 
-    public function compose( _position:Vector, _rotation:Float, _scale:Vector ) {
+    public function compose( _position:Float2, _rotation:Float, s:Float ) {
 
         identity();
 
-        scale( _scale.x, _scale.y );
+        scale( s, s );
         rotate( _rotation );
         makeTranslation( _position.x, _position.y );
 
@@ -100,6 +102,12 @@ class Matrix  {
 
     } //scale
 
+    public inline function transform( v : Float2 ) : Float2{
+        return new Float2( 
+            v.x*a + v.y*c + tx,
+            v.x*b + v.y*d + ty
+        );
+    }
     public function toString ():String {
 
         return "(a=" + a + ", b=" + b + ", c=" + c + ", d=" + d + ", tx=" + tx + ", ty=" + ty + ")";

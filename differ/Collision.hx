@@ -11,11 +11,19 @@ class Collision {
             When no collision is found between them, this function returns null.
             Returns a `ShapeCollision` if a collision is found. */
     public static inline function shapeWithShape( shape1:Shape, shape2:Shape, ?into:ShapeCollision ) : ShapeCollision {
+        var c1 = Std.isOfType(shape1, Circle);
+        var c2 = Std.isOfType(shape2, Circle);
 
-        return shape1.test(shape2, into);
+        if (c1 ) {
+            if (c2) return SAT2D.testCircleVsCircle( cast shape1, cast shape2, into, false );
+            return SAT2D.testCircleVsPolygon(  cast shape1,cast shape2, into, false );
+        } 
 
+        if (c2) return SAT2D.testCircleVsPolygon(cast shape2, cast shape1, into, true );
+            return SAT2D.testPolygonVsPolygon(cast shape1, cast shape2, into, false );
     } //test
 
+    #if false
         /** Test a single shape against multiple other shapes.
             When no collision is found, this function returns empty results, this function will never return null.
             Returns a list of `ShapeCollision` information for each collision found.
@@ -43,15 +51,19 @@ class Collision {
 
     } //testShapes
 
+    #end
         /** Test a line between two points against a list of shapes.
             When no collision is found, this function returns null.
             Returns a `RayCollision` if a collision is found. */
-    public static inline function rayWithShape( ray:Ray, shape:Shape, ?into:RayCollision ) : RayCollision {
-
-        return shape.testRay(ray, into);
+    public static inline function rayWithShape( ray:Ray, transform : Transform, shape:Shape, ?into:RayCollision ) : RayCollision {
+        if (Std.isOfType(shape, Circle)) {
+            return SAT2D.testRayVsCircle(ray, transform, cast shape, into);
+        }
+        return SAT2D.testRayVsPolygon(ray, transform, cast shape, into);
 
     } //rayShape
 
+    #if false
         /** Test a ray between two points against a list of shapes.
             When no collision is found, this function returns an empty array, this function will never return null.
             Returns a list of `RayCollision` information for each collision found.
@@ -76,7 +88,7 @@ class Collision {
         return results;
 
     } //rayShapes
-
+#end
         /** Test a ray against another ray.
             When no collision is found, this function returns null.
             Returns a `RayIntersection` if a collision is found. */
@@ -113,10 +125,10 @@ class Collision {
 
         /** Test if a given point lands inside the given polygon.
             Returns true if it does, false otherwise. */
-    public static function pointInPoly( x:Float, y:Float, poly:Polygon ) : Bool {
+    public static function pointInPoly( x:Float, y:Float, transform : Transform, poly:Polygon ) : Bool {
 
-        var sides:Int = poly.transformedVertices.length; //amount of sides the polygon has
-        var verts = poly.transformedVertices;
+        var verts = poly.vertices;
+        var sides:Int = verts.length; //amount of sides the polygon has
 
         var i:Int = 0;
         var j:Int = sides - 1;

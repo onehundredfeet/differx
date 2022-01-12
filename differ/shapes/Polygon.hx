@@ -5,68 +5,30 @@ import differ.shapes.*;
 import differ.data.*;
 import differ.sat.*;
 
+import hvector.*;
+
 /** A polygonal collision shape */
 class Polygon extends Shape {
 
-        /** The transformed (rotated/scale) vertices cache */
-    public var transformedVertices ( get, never ) : Array<Vector>;
         /** The vertices of this shape */
-    public var vertices ( get, never ) : Array<Vector>;
+    public var vertices ( get, never ) : Float2Array;
 
-    var _transformedVertices : Array<Vector>;
-    var _vertices : Array<Vector>;
+    var _vertices : Float2Array;
 
 
         /** Create a new polygon with a given set of vertices at position x,y. */
-    public function new( x:Float, y:Float, vertices:Array<Vector> ) {
-
-        super( x,y );
-
-        name = 'polygon(sides:${vertices.length})';
-
-        _transformedVertices = new Array<Vector>();
+    public function new( vertices:Float2Array, ?original : Polygon ) {
+        super(original);
+        #if differ_autoname name = 'polygon(sides:${vertices.length})'; #end
         _vertices = vertices;
 
     } //new
-
-        /** Test for a collision with a shape. */
-    override public function test( shape:Shape, ?into:ShapeCollision ) : ShapeCollision {
-
-        return shape.testPolygon(this, into, true);
-
-    } //test
-
-        /** Test for a collision with a circle. */
-    override public function testCircle( circle:Circle, ?into:ShapeCollision, flip:Bool = false ) : ShapeCollision {
-
-        return SAT2D.testCircleVsPolygon( circle, this, into, !flip );
-
-    } //testCircle
-
-        /** Test for a collision with a polygon. */
-    override public function testPolygon( polygon:Polygon, ?into:ShapeCollision, flip:Bool = false ) : ShapeCollision {
-
-        return SAT2D.testPolygonVsPolygon( this, polygon, into, flip );
-
-    } //testPolygon
-
-        /** Test for a collision with a ray. */
-    override public function testRay( ray:Ray, ?into:RayCollision ) : RayCollision {
-
-        return SAT2D.testRayVsPolygon(ray, this, into);
-
-    } //testRay
 
         /** Destroy this polygon and clean up. */
     override public function destroy() : Void {
 
         var _count : Int = _vertices.length;
-
-        for(i in 0 ... _count) {
-            _vertices[i] = null;
-        }
-
-        _transformedVertices = null;
+       
         _vertices = null;
 
         super.destroy();
@@ -75,9 +37,12 @@ class Polygon extends Shape {
 
 //Public static API
 
+    public static function allocate(verts:Int):Polygon {
+        return new Polygon( Float2Array.allocate(verts));
+    }
         /** Helper to create an Ngon at x,y with given number of sides, and radius.
             A default radius of 100 if unspecified. Returns a ready made `Polygon` collision `Shape` */
-    public static function create( x:Float, y:Float, sides:Int, radius:Float=100):Polygon {
+    public static function create(sides:Int, radius:Float=100):Polygon {
 
         if(sides < 3) {
             throw 'Polygon - Needs at least 3 sides';
@@ -85,82 +50,81 @@ class Polygon extends Shape {
 
         var rotation:Float = (Math.PI * 2) / sides;
         var angle:Float;
-        var vector:Vector;
-        var vertices:Array<Vector> = new Array<Vector>();
+        var Float2:Float2;
+        var vertices:Float2Array = Float2Array.allocate(sides);
 
         for(i in 0 ... sides) {
             angle = (i * rotation) + ((Math.PI - rotation) * 0.5);
-            vector = new Vector();
-            vector.x = Math.cos(angle) * radius;
-            vector.y = Math.sin(angle) * radius;
-            vertices.push(vector);
+            var v = new Float2(Math.cos(angle) * radius, Math.sin(angle) * radius);
+            vertices[i] = v;
         }
 
-        return new Polygon(x,y,vertices);
+        return new Polygon(vertices);
 
     } //create
 
         /** Helper generate a rectangle at x,y with a given width/height and centered state.
             Centered by default. Returns a ready made `Polygon` collision `Shape` */
-    public static function rectangle(x:Float, y:Float, width:Float, height:Float, centered:Bool = true):Polygon {
+    public static function rectangle( width:Float, height:Float, centered:Bool = true):Polygon {
 
-        var vertices:Array<Vector> = new Array<Vector>();
+        var vertices:Float2Array = Float2Array.allocate(4);
 
         if(centered) {
 
-            vertices.push( new Vector( -width / 2, -height / 2) );
-            vertices.push( new Vector(  width / 2, -height / 2) );
-            vertices.push( new Vector(  width / 2,  height / 2) );
-            vertices.push( new Vector( -width / 2,  height / 2) );
+            vertices[0] = ( new Float2( -width / 2, -height / 2) );
+            vertices[1] = ( new Float2(  width / 2, -height / 2) );
+            vertices[2] = ( new Float2(  width / 2,  height / 2) );
+            vertices[3] = ( new Float2( -width / 2,  height / 2) );
 
         } else {
 
-            vertices.push( new Vector( 0, 0 ) );
-            vertices.push( new Vector( width, 0 ) );
-            vertices.push( new Vector( width, height) );
-            vertices.push( new Vector( 0, height) );
+            vertices[0] = ( new Float2( 0, 0 ) );
+            vertices[1] = ( new Float2( width, 0 ) );
+            vertices[2] = ( new Float2( width, height) );
+            vertices[3] = ( new Float2( 0, height) );
 
         }
 
-        return new Polygon(x,y,vertices);
+        return new Polygon(vertices);
 
     } //rectangle
 
         /** Helper generate a square at x,y with a given width/height with given centered state.
             Centered by default. Returns a ready made `Polygon` collision `Shape` */
-    public static inline function square(x:Float, y:Float, width:Float, centered:Bool = true) : Polygon {
+    public static inline function square( width:Float, centered:Bool = true) : Polygon {
 
-        return rectangle(x, y, width, width, centered);
+        return rectangle(width, width, centered);
 
     } //square
 
         /** Helper generate a triangle at x,y with a given radius.
             Returns a ready made `Polygon` collision `Shape` */
-    public static function triangle(x:Float, y:Float, radius:Float) : Polygon {
+    public static function triangle( radius:Float) : Polygon {
 
-        return create(x, y, 3, radius);
+        return create(3, radius);
 
     } //triangle
 
 //Internal
 
-    function get_transformedVertices() : Array<Vector> {
 
-        if(!_transformed) {
-            _transformedVertices = new Array<Vector>();
-            _transformed = true;
 
-            var _count : Int = _vertices.length;
-
-            for(i in 0..._count) {
-                _transformedVertices.push( _vertices[i].clone().transform( _transformMatrix ) );
-            }
+    public function transform(t : Transform, ? into : Polygon)   : Polygon {
+        if (into == null) {
+            into = new Polygon( Float2Array.allocate( vertices.length), cast _original);
+        } else {
+            into.vertices.resize(vertices.length);
+            into._original = _original;
+        }
+        var tv = into.vertices;
+        for(i in 0...vertices.length) {
+            tv[i] = t.matrix.transform(_vertices[i]);
         }
 
-        return _transformedVertices;
+        return into;
     }
 
-    function get_vertices() : Array<Vector> {
+    function get_vertices() : Float2Array {
         return _vertices;
     }
 

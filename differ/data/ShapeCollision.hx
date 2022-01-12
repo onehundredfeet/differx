@@ -12,25 +12,33 @@ class ShapeCollision {
 
         /** The overlap amount */
     var overlap : Float = 0.0;
-        /** X component of the separation vector, when subtracted from shape 1 will separate it from shape 2 */
+        /** X component of the separation Float2, when subtracted from shape 1 will separate it from shape 2 */
     var separationX : Float = 0.0;
-        /** Y component of the separation vector, when subtracted from shape 1 will separate it from shape 2 */
+        /** Y component of the separation Float2, when subtracted from shape 1 will separate it from shape 2 */
     var separationY : Float = 0.0;
-        /** X component of the unit vector, on the axis of the collision (i.e the normal of the face that was collided with) */
+        /** X component of the unit Float2, on the axis of the collision (i.e the normal of the face that was collided with) */
     var unitVectorX : Float = 0.0;
-        /** Y component of the unit vector, on the axis of the collision (i.e the normal of the face that was collided with) */
+        /** Y component of the unit Float2, on the axis of the collision (i.e the normal of the face that was collided with) */
     var unitVectorY : Float = 0.0;
 
     var otherOverlap : Float = 0.0;
     var otherSeparationX : Float = 0.0;
     var otherSeparationY : Float = 0.0;
-    var otherUnitVectorX : Float = 0.0;
-    var otherUnitVectorY : Float = 0.0;
+    var otherunitVectorX : Float = 0.0;
+    var otherunitVectorY : Float = 0.0;
+
+    
 
         /** The shape that was tested */
     var shape1 : Shape;
+    var shape1_x : Float;
+    var shape1_y : Float;
+    
         /** The shape that shape1 was tested against */
     var shape2 : Shape;
+
+    var shape2_x : Float;
+    var shape2_y : Float;
 
     @:noCompletion
     inline function new() {
@@ -41,7 +49,7 @@ class ShapeCollision {
 
         shape1 = shape2 = null;
         overlap = separationX = separationY = unitVectorX = unitVectorY = 0.0;
-        otherOverlap = otherSeparationX = otherSeparationY = otherUnitVectorX = otherUnitVectorY = 0.0;
+        otherOverlap = otherSeparationX = otherSeparationY = otherunitVectorX = otherunitVectorY = 0.0;
         
         return this;
 
@@ -67,8 +75,8 @@ class ShapeCollision {
         otherOverlap = _other.otherOverlap;
         otherSeparationX = _other.otherSeparationX;
         otherSeparationY = _other.otherSeparationY;
-        otherUnitVectorX = _other.otherUnitVectorX;
-        otherUnitVectorY = _other.otherUnitVectorY;
+        otherunitVectorX = _other.otherunitVectorX;
+        otherunitVectorY = _other.otherunitVectorY;
         shape1 = _other.shape1;
         shape2 = _other.shape2;
 

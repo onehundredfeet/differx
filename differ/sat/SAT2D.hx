@@ -5,30 +5,36 @@ import differ.shapes.*;
 import differ.data.*;
 import differ.math.Util.*;
 
+import hvector.*;
+
+
 /** Implementation details for the 2D SAT collision queries.
     Used by the various shapes, and Collision API, mostly internally.  */
 class SAT2D {
 
         /** Internal api - test a circle against a polygon */
-    public static function testCircleVsPolygon( circle:Circle, polygon:Polygon, ?into:ShapeCollision, flip:Bool=false ) : ShapeCollision {
+    public static function testCircleVsPolygon(circle:Circle, polygon:Polygon, ?into:ShapeCollision, flip:Bool=false ) : ShapeCollision {
 
         into = into == null ? new ShapeCollision() : into.reset();
 
-        var verts = polygon.transformedVertices;
+        var verts = polygon.vertices;
 
-        var circleX = circle.x;
-        var circleY = circle.y;
+        var circleX = circle.center.x;
+        var circleY = circle.center.y;
 
         var testDistance : Float = 0x3FFFFFFF;
         var distance = 0.0, closestX = 0.0, closestY = 0.0;
+
         for(i in 0 ... verts.length) {
 
-            distance = vec_lengthsq(circleX - verts[i].x, circleY - verts[i].y);
+            var v = verts[i];
+
+            distance = vec_lengthsq(circleX - v.x, circleY - v.y);
 
             if(distance < testDistance) {
                 testDistance = distance;
-                closestX = verts[i].x;
-                closestY = verts[i].y;
+                closestX = v.x;
+                closestY = v.y;
             }
 
         } //for
@@ -41,18 +47,20 @@ class SAT2D {
 
             //project all its points, 0 outside the loop
         var test = 0.0;
-        var min1 = vec_dot(normalAxisX, normalAxisY, verts[0].x, verts[0].y);
+        var v0 = verts[0];
+        var min1 = vec_dot(normalAxisX, normalAxisY, v0.x, v0.y);
         var max1 = min1;
 
         for(j in 1 ... verts.length) {
-            test = vec_dot(normalAxisX, normalAxisY, verts[j].x, verts[j].y);
+            var v = verts[j];
+            test = vec_dot(normalAxisX, normalAxisY, v.x, v.y);
             if(test < min1) min1 = test;
             if(test > max1) max1 = test;
         } //each vert
 
             // project the circle
-        var max2 = circle.transformedRadius;
-        var min2 = -circle.transformedRadius;
+        var max2 = circle.radius;
+        var min2 = -circle.radius;
         var offset = vec_dot(normalAxisX, normalAxisY, -circleX, -circleY);
             
         min1 += offset;
@@ -94,8 +102,8 @@ class SAT2D {
             }
 
             // project the circle(again)
-            max2 = circle.transformedRadius; //max is radius
-            min2 = -circle.transformedRadius; //min is negative radius
+            max2 = circle.radius; //max is radius
+            min2 = -circle.radius; //min is negative radius
 
             //offset points
             offset = vec_dot(normalAxisX, normalAxisY, -circleX, -circleY);
@@ -125,8 +133,8 @@ class SAT2D {
 
         //if you made it here, there is a collision!!!!!
 
-        into.shape1 = if(flip) polygon else circle;
-        into.shape2 = if(flip) circle else polygon;
+        into.shape1 = if(flip) polygon.original else circle.original;
+        into.shape2 = if(flip) circle.original else polygon.original;
         into.separationX = into.unitVectorX * into.overlap;
         into.separationY = into.unitVectorY * into.overlap;
 
@@ -140,16 +148,19 @@ class SAT2D {
     } //testCircleVsPolygon
 
         /** Internal api - test a circle against a circle */
-    public static function testCircleVsCircle( circleA:Circle, circleB:Circle, ?into:ShapeCollision, flip:Bool = false ) : ShapeCollision {
+    public static function testCircleVsCircle( circleA:Circle,  circleB:Circle, ?into:ShapeCollision, flip:Bool = false ) : ShapeCollision {
         //
 
         var circle1 = flip ? circleB : circleA;
         var circle2 = flip ? circleA : circleB;
 
+        var center1 = flip ? circleB.center : circleA.center;
+        var center2 = flip ? circleA.center : circleB.center;
+        
             //add both radii together to get the colliding distance
-        var totalRadius = circle1.transformedRadius + circle2.transformedRadius;
+        var totalRadius = circle1.radius + circle2.radius;
             //find the distance between the two circles using Pythagorean theorem. No square roots for optimization
-        var distancesq = vec_lengthsq(circle1.x - circle2.x, circle1.y - circle2.y);
+        var distancesq = vec_lengthsq(center1.x - center2.x, center1.y - center2.y);
 
             //if your distance is less than the totalRadius square(because distance is squared)
         if(distancesq < totalRadius * totalRadius) {
@@ -158,11 +169,11 @@ class SAT2D {
                 //find the difference. Square roots are needed here.
             var difference = totalRadius - Math.sqrt(distancesq);
 
-                into.shape1 = circle1;
-                into.shape2 = circle2;
+                into.shape1 = circle1.original;
+                into.shape2 = circle2.original;
 
-                var unitVecX = circle1.x - circle2.x;
-                var unitVecY = circle1.y - circle2.y;
+                var unitVecX = center1.x - center2.x;
+                var unitVecY = center1.y - center2.y;
                 var unitVecLen = vec_length(unitVecX, unitVecY);
 
                 unitVecX = vec_normalize(unitVecLen, unitVecX);
@@ -188,7 +199,7 @@ class SAT2D {
     static var tmp1:ShapeCollision = new ShapeCollision();
     static var tmp2:ShapeCollision = new ShapeCollision();
 
-    public static function testPolygonVsPolygon( polygon1:Polygon, polygon2:Polygon, ?into:ShapeCollision, flip:Bool=false ) : ShapeCollision {
+    public static function testPolygonVsPolygon(polygon1:Polygon,polygon2:Polygon, ?into:ShapeCollision, flip:Bool=false ) : ShapeCollision {
 
         into = (into == null) ? new ShapeCollision() : into.reset();
         
@@ -212,8 +223,8 @@ class SAT2D {
         result.otherOverlap = other.overlap;
         result.otherSeparationX = other.separationX;
         result.otherSeparationY = other.separationY;
-        result.otherUnitVectorX = other.unitVectorX;
-        result.otherUnitVectorY = other.unitVectorY;
+        result.otherunitVectorX = other.unitVectorX;
+        result.otherunitVectorY = other.unitVectorY;
 
         into.copy_from(result);
         result = other = null;
@@ -223,12 +234,12 @@ class SAT2D {
     } //testPolygonVsPolygon
 
         /** Internal api - test a ray against a circle */
-    public static function testRayVsCircle( ray:Ray, circle:Circle, ?into:RayCollision ) : RayCollision {
+    public static function testRayVsCircle( ray:Ray, transform : Transform, circle:Circle, ?into:RayCollision ) : RayCollision {
 
         var deltaX = ray.end.x - ray.start.x;
         var deltaY = ray.end.y - ray.start.y;
-        var ray2circleX = ray.start.x - circle.position.x;
-        var ray2circleY = ray.start.y - circle.position.y;
+        var ray2circleX = ray.start.x - transform.x;
+        var ray2circleY = ray.start.y - transform.y;
 
         var a = vec_lengthsq(deltaX, deltaY);
         var b = 2 * vec_dot(deltaX, deltaY, ray2circleX, ray2circleY);
@@ -268,7 +279,7 @@ class SAT2D {
     } //testRayVsCircle
 
         /** Internal api - test a ray against a polygon */
-    public static function testRayVsPolygon( ray:Ray, polygon:Polygon, ?into:RayCollision ) : RayCollision {
+    public static function testRayVsPolygon( ray:Ray, transform : Transform, polygon:Polygon, ?into:RayCollision ) : RayCollision {
 
         var min_u = Math.POSITIVE_INFINITY;
         var max_u = Math.NEGATIVE_INFINITY;
@@ -278,7 +289,7 @@ class SAT2D {
         var deltaX = ray.end.x - startX;
         var deltaY = ray.end.y - startY;
 
-        var verts = polygon.transformedVertices;
+        var verts = polygon.vertices;
         var v1 = verts[verts.length - 1];
         var v2 = verts[0];
 
@@ -375,7 +386,7 @@ class SAT2D {
 //Internal implementation detail helpers
 
         /** Internal api - implementation details for testPolygonVsPolygon */
-    static function checkPolygons( polygon1:Polygon, polygon2:Polygon, into:ShapeCollision, flip:Bool=false ) : ShapeCollision {
+    static function checkPolygons( polygon1:Polygon,polygon2:Polygon, into:ShapeCollision, flip:Bool=false ) : ShapeCollision {
 
         into.reset();
 
@@ -385,8 +396,8 @@ class SAT2D {
 
         var axisX = 0.0;
         var axisY = 0.0;
-        var verts1 = polygon1.transformedVertices;
-        var verts2 = polygon2.transformedVertices;
+        var verts1 = polygon1.vertices;
+        var verts2 = polygon2.vertices;
 
             // loop to begin projection
         for(i in 0 ... verts1.length) {
@@ -434,8 +445,8 @@ class SAT2D {
 
         }
 
-        into.shape1 = if(flip) polygon2 else polygon1;
-        into.shape2 = if(flip) polygon1 else polygon2;
+        into.shape1 = if(flip) polygon2.original else polygon1.original;
+        into.shape2 = if(flip) polygon1.original else polygon2.original;
         into.separationX = -into.unitVectorX * into.overlap;
         into.separationY = -into.unitVectorY * into.overlap;
 
@@ -456,12 +467,12 @@ class SAT2D {
         return (dX * (aY - bY) - dY * (aX - bX)) / udelta;
     } //rayU
 
-    static inline function findNormalAxisX(verts:Array<Vector>, index:Int) : Float {
+    static inline function findNormalAxisX(verts:Float2Array, index:Int) : Float {
         var v2 = (index >= verts.length - 1) ? verts[0] : verts[index + 1];
         return -(v2.y - verts[index].y);
     }
 
-    static inline function findNormalAxisY(verts:Array<Vector>, index:Int) : Float {
+    static inline function findNormalAxisY(verts:Float2Array, index:Int) : Float {
         var v2 = (index >= verts.length - 1) ? verts[0] : verts[index + 1];
         return (v2.x - verts[index].x);
     }

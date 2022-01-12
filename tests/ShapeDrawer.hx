@@ -4,6 +4,9 @@ import differ.math.*;
 import differ.shapes.*;
 import differ.data.*;
 
+import hvector.Float2Array;
+import hvector.Float2;
+
 /** To implement your own debug drawing class, you only need to override drawLine function and implement it
     the rest is handled internally. You can override specifics if you want, but it's not required */
 class ShapeDrawer {
@@ -20,30 +23,31 @@ class ShapeDrawer {
     } //drawLine
 
         /** Draw a `Shape`, it will determine the type and draw it for you. */
-    public function drawShape( shape:Shape ) {
+    public function drawShape( t : Transform, shape:Shape ) {
 
         if(Std.is(shape, Polygon)) {
-            drawPolygon(cast shape);
+            drawPolygon(t, cast shape);
         } else {
-            drawCircle(cast shape);
+            drawCircle(t, cast shape);
         }
 
     } //drawShape
 
         /** Draw a `Polygon` */
-    public function drawPolygon( poly:Polygon ) {
+    public function drawPolygon( t: Transform, poly:Polygon ) {
 
-        drawVertList(poly.transformedVertices);
+        var p2 = Polygon.create(4);
+        drawVertList(poly.vertices);
 
     } //drawPolygon
 
         /** Draw a circle `Shape` */
-    public function drawCircle( circle:Circle ) {
+    public function drawCircle( t: Transform,circle:Circle ) {
             //from :
         //http://slabode.exofire.net/circle_draw.shtml
 
         var _smooth : Float = 10;
-        var _steps : Int = Std.int(_smooth * Math.sqrt( circle.transformedRadius ));
+        var _steps : Int = Std.int(_smooth * Math.sqrt( circle.radius ));
 
             //Precompute the value based on segments
         var theta = 2 * 3.1415926 / _steps;
@@ -51,17 +55,17 @@ class ShapeDrawer {
         var tangential_factor = Math.tan( theta );
         var radial_factor = Math.cos( theta );
 
-        var x : Float = circle.transformedRadius;
+        var x : Float = circle.radius;
         var y : Float = 0;
 
-        var _verts : Array<Vector> = [];
+        var _verts : Float2Array = [];
 
         for( i in 0 ... _steps ) {
 
-            var __x = x + circle.x;
-            var __y = y + circle.y;
+            var __x = x + t.x;
+            var __y = y + t.y;
 
-            _verts.push(new Vector(__x,__y));
+            _verts.push(new Float2(__x,__y));
 
                 var tx = -y;
                 var ty = x;
@@ -100,20 +104,20 @@ class ShapeDrawer {
 
         //origins
 
-        drawPoint(c.shape1.position.x, c.shape1.position.y);
-        drawPoint(c.shape2.position.x, c.shape2.position.y);
+        drawPoint(c.shape1_x, c.shape1_y);
+        drawPoint(c.shape2_x, c.shape2_y);
 
-        //unit vectors
+        //unit Float2s
 
-        drawLine( c.shape1.position.x, c.shape1.position.y, c.shape1.position.x + (c.unitVectorX * length), c.shape1.position.y + (c.unitVectorY * length) );
+        drawLine( c.shape1_x, c.shape1_y, c.shape1_x + (c.unitVectorX * length), c.shape1_y + (c.unitVectorY * length) );
 
         //ghosts
 
-        drawPoint(c.shape1.position.x + c.separationX, c.shape1.position.y + c.separationY);
+        drawPoint(c.shape1_x + c.separationX, c.shape1_y + c.separationY);
         
         if(c.otherOverlap != 0.0) {
-            drawLine(c.shape1.position.x, c.shape1.position.y, c.shape1.position.x + (c.otherUnitVectorX * length), c.shape1.position.y + (c.otherUnitVectorY * length));
-            drawPoint(c.shape1.position.x + c.otherSeparationX, c.shape1.position.y + c.otherSeparationY);
+            drawLine(c.shape1_x, c.shape1_y, c.shape1_x + (c.otherunitVectorX * length), c.shape1_y + (c.otherunitVectorY * length));
+            drawPoint(c.shape1_x + c.otherSeparationX, c.shape1_y + c.otherSeparationY);
         }
 
     } //drawShapeCollision
@@ -123,7 +127,7 @@ class ShapeDrawer {
 
 
         /** Draw a list of points as lines */
-    function drawVertList( _verts : Array<Vector> ) {
+    function drawVertList( _verts : Float2Array ) {
 
         var _count : Int = _verts.length;
 

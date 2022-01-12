@@ -1,0 +1,5 @@
+--class-path .
+--class-path tests
+--library hvector
+-hl bin/test.hl
+--main Test
