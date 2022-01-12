@@ -8,6 +8,7 @@ A [Separating Axis Theorem](http://en.wikipedia.org/wiki/Hyperplane_separation_t
 
 [ ![haxe](docs/images/haxe.png) ](http://haxe.org)
 
+Note: DifferX is a substantial departure at an API level from Differ.
 ----
 
 ## Facts
