@@ -29,8 +29,7 @@ class Transform {
 
 
     /** Create a new shape at give position x,y */
-    public function new( _x:Float, _y:Float, angle : Float, scale = 1. ) {
-
+    public function new( _x:Float = 0., _y:Float = 0., angle : Float = 0., scale = 1. ) {
 
         _position = new Float2(_x,_y);
         _rotation = angle;

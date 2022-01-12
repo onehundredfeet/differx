@@ -258,7 +258,7 @@ class ResultsIterator<T:Constructible> {
     var index: Int = 0;
     var results: Results<T>;
 
-    public function new(_results:Results<T>) {
+    public inline function new(_results:Results<T>) {
         index = 0;
         results = _results;
     }

@@ -11,9 +11,9 @@ class Test {
     public static function main() {
         var b =  Float2Array.allocate(4);
         var p = Polygon.square( 1., false);
-        var c = new Circle(new Float2(0., 0.), 1.);
-        var t1 = new Transform(0., 0.);
-        var t2 = new Transform(0., 0.);
+        var c = new Circle( 1., new Float2(0., 0.));
+        var t1 = new Transform();
+        var t2 = new Transform();
         
         var tp = p.transform(t1);
         var tc = c.transform(t2);
