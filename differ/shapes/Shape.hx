@@ -1,5 +1,6 @@
 package differ.shapes;
 
+import hl.I64;
 import differ.math.*;
 import differ.shapes.*;
 import differ.data.*;
@@ -14,6 +15,10 @@ class Shape {
 
     /** The upstream shape if this is a cached shape */
     public var original(get,never) : Shape;
+
+    // user provided flags to allow for fast rejection
+    public var memberOfFlags : UInt = 0xffffffff;
+    public var collidesWithFlags : UInt = 0xffffffff;
 
     /** The state of this shape, if inactive can be ignored in results */
      var _active : Bool = true;

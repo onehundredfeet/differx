@@ -7,11 +7,12 @@ import differ.data.*;
 /** Collision data, obtained by testing two shapes for a collision. */
 @:publicFields
 class ShapeCollision {
-
-   //
-
         /** The overlap amount */
     var overlap : Float = 0.0;
+
+    // User defined notion of time
+    var time : Float = 0.;
+
         /** X component of the separation Float2, when subtracted from shape 1 will separate it from shape 2 */
     var separationX : Float = 0.0;
         /** Y component of the separation Float2, when subtracted from shape 1 will separate it from shape 2 */
@@ -27,8 +28,6 @@ class ShapeCollision {
     var otherunitVectorX : Float = 0.0;
     var otherunitVectorY : Float = 0.0;
 
-    
-
         /** The shape that was tested */
     var shape1 : Shape;
     var shape1_x : Float;
@@ -39,6 +38,8 @@ class ShapeCollision {
 
     var shape2_x : Float;
     var shape2_y : Float;
+
+    public var data : std.Any;
 
     @:noCompletion
     inline function new() {
@@ -67,7 +68,9 @@ class ShapeCollision {
 
     inline function copy_from(_other:ShapeCollision) {
 
+        data = _other.data;
         overlap = _other.overlap;
+        time = _other.time;
         separationX = _other.separationX;
         separationY = _other.separationY;
         unitVectorX = _other.unitVectorX;

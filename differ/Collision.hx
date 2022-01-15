@@ -4,13 +4,15 @@ import differ.math.*;
 import differ.shapes.*;
 import differ.data.*;
 import differ.sat.*;
+import UInt;
 
 class Collision {
 
         /** Test a single shape against another shape.
             When no collision is found between them, this function returns null.
             Returns a `ShapeCollision` if a collision is found. */
-    public static inline function shapeWithShape( shape1:Shape, shape2:Shape, ?into:ShapeCollision ) : ShapeCollision {
+    public static inline function shapeWithShape( shape1:Shape, shape2:Shape, ?into:ShapeCollision, checkFlags : Bool = true ) : ShapeCollision {
+        if ( checkFlags && ((shape1.collidesWithFlags & shape2.memberOfFlags) == 0)) return null;
         var c1 = Std.isOfType(shape1, Circle);
         var c2 = Std.isOfType(shape2, Circle);
 
@@ -38,7 +40,7 @@ class Collision {
             }
 
         for(other_shape in shapes) {
-
+            if ((shape1.collidesWithFlags & other_shape.memberOfFlags) == 0) continue;
             var value = results.pull();
             var result = shapeWithShape(shape1, other_shape, value);
             if(result != null) {
@@ -55,7 +57,9 @@ class Collision {
         /** Test a line between two points against a list of shapes.
             When no collision is found, this function returns null.
             Returns a `RayCollision` if a collision is found. */
-    public static inline function rayWithShape( ray:Ray, transform : Transform, shape:Shape, ?into:RayCollision ) : RayCollision {
+    public static inline function rayWithShape( ray:Ray, ? collideWithFlags : UInt, transform : Transform, shape:Shape, ?into:RayCollision ) : RayCollision {
+        if ((collideWithFlags & shape.memberOfFlags) == 0) return null;
+
         if (Std.isOfType(shape, Circle)) {
             return SAT2D.testRayVsCircle(ray, transform, cast shape, into);
         }
@@ -78,6 +82,8 @@ class Collision {
             }
 
         for(shape in shapes) {
+            if ((collideWithFlags & shape.memberOfFlags) == 0) continue;
+
             var value = results.pull();
             var result = rayWithShape(ray, shape, value);
             if(result != null) {
