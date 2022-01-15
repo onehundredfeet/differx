@@ -1,8 +1,8 @@
 package ;
 
-import differ.Collision;
-import differ.math.*;
-import differ.shapes.*;
+import differx.Collision;
+import differx.math.*;
+import differx.shapes.*;
 
 import hvector.Float2Array;
 import hvector.Float2;

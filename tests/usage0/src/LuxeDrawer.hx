@@ -1,7 +1,7 @@
 
-import differ.ShapeDrawer;
-import differ.shapes.Circle;
-import differ.math.Vector;
+import differx.ShapeDrawer;
+import differx.shapes.Circle;
+import differx.math.Vector;
 import luxe.Log.*;
 
 class LuxeDrawer extends ShapeDrawer {

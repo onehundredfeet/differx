@@ -4,10 +4,10 @@ import luxe.Vector;
 import luxe.Input;
 import luxe.Color;
 
-import differ.Collision;
-import differ.math.Vector in V;
-import differ.shapes.*;
-import differ.data.*;
+import differx.Collision;
+import differx.math.Vector in V;
+import differx.shapes.*;
+import differx.data.*;
 
 class Circles extends luxe.States.State {
 

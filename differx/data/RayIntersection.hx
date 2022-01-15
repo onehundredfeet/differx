@@ -1,8 +1,8 @@
-package differ.data;
+package differx.data;
 
-import differ.math.*;
-import differ.shapes.*;
-import differ.data.*;
+import differx.math.*;
+import differx.shapes.*;
+import differx.data.*;
 
 /** Ray intersection data obtained by testing two rays for intersection. */
 @:publicFields

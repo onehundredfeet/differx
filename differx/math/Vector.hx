@@ -1,6 +1,6 @@
-package differ.math;
+package differx.math;
 
-import differ.math.Matrix;
+import differx.math.Matrix;
 
 //NOTE : Only implements the basics required for the collision code.
 //The goal is to make this library as simple and unencumbered as possible, making it easier to integrate

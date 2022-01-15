@@ -3,9 +3,9 @@ import luxe.Input;
 import luxe.Vector;
 import luxe.Text;
 
-import differ.shapes.Shape;
-import differ.shapes.Ray;
-import differ.math.Util;
+import differx.shapes.Shape;
+import differx.shapes.Ray;
+import differx.math.Util;
 import phoenix.Batcher;
 
 class Main extends luxe.Game {

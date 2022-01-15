@@ -1,9 +1,9 @@
-package differ.sat;
+package differx.sat;
 
-import differ.math.*;
-import differ.shapes.*;
-import differ.data.*;
-import differ.math.Util.*;
+import differx.math.*;
+import differx.shapes.*;
+import differx.data.*;
+import differx.math.Util.*;
 
 import hvector.*;
 

@@ -1,9 +1,9 @@
-package differ.shapes;
+package differx.shapes;
 
-import differ.math.*;
-import differ.shapes.*;
-import differ.data.*;
-import differ.sat.*;
+import differx.math.*;
+import differx.shapes.*;
+import differx.data.*;
+import differx.sat.*;
 
 import hvector.Float2;
 

@@ -1,6 +1,6 @@
-package differ.shapes;
+package differx.shapes;
 
-import differ.math.Transform;
+import differx.math.Transform;
 
 class CachedShape {
     public var transform(get,never) : Transform;

@@ -104,7 +104,7 @@ All of this was achieved, with the following changes.
 - **Added** `Rays` test in usage0
 - **Added** ShapeCollision/RayCollision/RayIntersection
     - added `clone()`, `copy_from(other)`, `reset()`
-- **Added** differ.math.Util
+- **Added** differx.math.Util
     - removes internal SAT2D use of the `Vector` class
 - **Added** `into` argument for all internal and external calls
     - this reuses the existing instance for the result
@@ -131,8 +131,8 @@ All of this was achieved, with the following changes.
     - New test case uses luxe https://luxeengine.com/
     - hxcollision/differ was born for luxe.collision, separate for any framework
  - **Refactor** continued separating code for future 3D vs 2D
-    - moved all internal 2D code into differ.sat.SAT2D
-    - moved all internal common code into differ.sat.Common
+    - moved all internal 2D code into differx.sat.SAT2D
+    - moved all internal common code into differx.sat.Common
  - **Renamed** `Collision.test` to `Collision.shapeWithShape`
  - **Renamed** `Collision.testShapes` to `Collision.shapeWithShapes`
  - **Renamed** `Collision.rayShape` to `Collision.rayWithShape`

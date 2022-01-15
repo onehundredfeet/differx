@@ -1,5 +1,5 @@
-package differ.math;
-import differ.data.*;
+package differx.math;
+import differx.data.*;
 
 import hvector.*;
 

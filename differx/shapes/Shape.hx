@@ -1,9 +1,9 @@
-package differ.shapes;
+package differx.shapes;
 
 import hl.I64;
-import differ.math.*;
-import differ.shapes.*;
-import differ.data.*;
+import differx.math.*;
+import differx.shapes.*;
+import differx.data.*;
 
 /** A base collision shape */
 class Shape {
