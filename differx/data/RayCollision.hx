@@ -63,12 +63,12 @@ class RayCollisionHelper {
             If you need that point, use the ray.start point,
             i.e `if(data.start < 0) point = data.ray.start; else point = data.hitStart();  ` */
     public static inline function hitStartX( data:RayCollision ) : Float {
-        return data.ray.start.x + (data.ray.dir.x * data.start);
+        return data.ray.origin.x + (data.ray.dir.x * data.start);
     }
 
         /** Convenience: get the start Y point along the line */
     public static inline function hitStartY( data:RayCollision ) : Float {
-        return data.ray.start.y + (data.ray.dir.y * data.start);
+        return data.ray.origin.y + (data.ray.dir.y * data.start);
     }
 
         /** Convenience: get the end X point along the line.
@@ -77,7 +77,7 @@ class RayCollisionHelper {
             If you need that point, you would use ray.end as the point,
             i.e `if(data.end > 1) point = data.ray.end; else point = data.hitEnd();` */
     public static inline function hitEndX( data:RayCollision ) : Float {
-        return data.ray.start.x + (data.ray.dir.x * data.end);
+        return data.ray.origin.x + (data.ray.dir.x * data.end);
     }
 
         /** Convenience: get the end point along the line.
@@ -86,7 +86,7 @@ class RayCollisionHelper {
             If you need that point, you would use ray.end as the point,
             i.e `if(data.end > 1) point = data.ray.end; else point = data.hitEnd();` */
     public static inline function hitEndY( data:RayCollision ) : Float {
-        return data.ray.start.y + (data.ray.dir.y * data.end);
+        return data.ray.origin.y + (data.ray.dir.y * data.end);
     }
 
 } //RayCollisionHelper

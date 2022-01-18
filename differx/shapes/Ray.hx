@@ -6,57 +6,59 @@ import differx.data.*;
 
 import hvector.Float2;
 
-/** A ray with a start, end, direction 
+@:enum
+abstract TraceFlags(UInt) to UInt from UInt {
+	var ALL = 1 << 0; // Default is single hit
+	var CLOSEST = 1 << 1; // Default is first hit
+	var CONE = 1 << 2; // when stepping, it will use circles to emulate thickness, default is an infinitely thin ray
+    var INFINITE = 1 << 3; // Unbounded, default is bounded by distance
+    var BIDIRECTIONAL = 1 << 4; // Allows for negative results, default is positive only
+}
+
+/** A ray with a origin, end, direction 
     and infinite state for collision queries. */
+@:build(hvector.VectorBuilder.Float2("origin"))
+@:build(hvector.VectorBuilder.Float2("end"))
+@:build(hvector.VectorBuilder.Float2("dir"))
 class Ray {
+    public var flags : UInt = 0;
+    public var maxDistance : Float;
 
-        /** The start point of the ray. */
-    public var start:Float2;
-        /** The end point of the ray. */
-    public var end:Float2;
-        /** The direction of the ray.
-            Returns a cached Float2, so modifying it will affect this instance.
-            Updates only when the dir value is accessed. */
-    public var dir (get, never):Float2;
-        /** Whether or not the ray is infinite. */
-    public var infinite:InfiniteState;
+	public var startRadius:Float;
+	public var endRadius:Float;
+	public var coneSteps:Int = 1;
+    public var collideWith:UInt = 0xffffffff;
 
-        /** Create a new ray with the start and end point,
-            which determine the direction of the ray, and optionally specifying
-            that this ray is infinite in some way. */
-    public function new(_start:Float2, _end:Float2, ?_infinite:InfiniteState) {
-
-        start = _start;
-        end = _end;
-        infinite = _infinite == null ? not_infinite : _infinite;
-
-        //internal
-        dir_cache = new Float2(end.x - start.x, end.y - start.y);
+    public function new() {
 
     } //
 
-//properties
-
-    var dir_cache : Float2;
-    function get_dir() {
-        dir_cache.x = end.x - start.x;
-        dir_cache.y = end.y - start.y;
-        return dir_cache;
+    public function setLine( start : Float2, end : Float2, flags : UInt = 0) {
+        this.origin = start;
+        this.end = end;
+        this.maxDistance = (end - start).length();
+        this.dir = (end - start) * (1. / maxDistance);
+        this.flags = flags;
     }
 
+    public function setRay( start : Float2, dir : Float2, max : Float, flags : UInt = 0) {
+        this.origin = start;
+        this.dir = dir;
+        this.end = start + dir * max;
+        this.maxDistance = max;
+        this.flags = flags;
+    }
+
+    public function setCone( start : Float2, dir : Float2, max : Float, r0 : Float, r1 : Float, steps : Int, flags : UInt = 0) {
+        this.origin = start;
+        this.dir = dir;
+        this.end = start + dir * max;
+        this.maxDistance = max;
+        this.flags = flags;
+        this.startRadius = r0;
+        this.endRadius = r1;
+        this.coneSteps = steps;
+    }
+
+    //properties
 }
-
-    /** A flag for the infinite state of a Ray. */
-enum InfiniteState {
-
-        /** The line is a fixed length 
-            between the start and end points. */
-    not_infinite;
-        /** The line is infinite 
-            from it's starting point. */
-    infinite_from_start;
-        /** The line is infinite in both 
-            directions from it's starting point. */
-    infinite;
-
-} //InfiniteState

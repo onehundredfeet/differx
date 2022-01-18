@@ -1,146 +1,138 @@
 package differx.math;
-import differx.data.*;
 
+import differx.data.*;
 import hvector.*;
 
 class Transform {
-   
-    public var position ( get, set ) : Float2;
-        /** The x position of this shape */
-    public var x ( get, set ) : Float;
-        /** The y position of this shape */
-    public var y ( get, set ) : Float;
-        /** The rotation of this shape, in degrees */
-    public var rotation ( get, set ) : Float;
-        /** The scale in the all direction of this shape */
-    public var scale ( get, set ) : Float;
+	public var position(get, set):Float2;
 
-    public var matrix (get, never ) : Matrix;
+	/** The x position of this shape */
+	public var x(get, set):Float;
 
-    var _position : Float2;
-    var _rotation : Float = 0;
-    var _rotation_radians : Float = 0;
+	/** The y position of this shape */
+	public var y(get, set):Float;
 
-    var _scale : Float = 1;
+	/** The rotation of this shape, in degrees */
+	public var rotation(get, set):Float;
 
-    var _transformMatrix : Matrix;
-    var _dirty = false;
-//Public API
+	/** The scale in the all direction of this shape */
+	public var scale(get, set):Float;
 
+	public var matrix(get, never):Matrix;
 
-    /** Create a new shape at give position x,y */
-    public function new( _x:Float = 0., _y:Float = 0., angle : Float = 0., scale = 1. ) {
+	var _position:Float2;
+	var _rotation:Float = 0;
+	var _rotation_radians:Float = 0;
 
-        _position = new Float2(_x,_y);
-        _rotation = angle;
+	var _scale:Float = 1;
 
-        _scale = scale;
+	var _transformMatrix:Matrix;
+	var _dirty = false;
 
-        _transformMatrix = new Matrix();
-        _transformMatrix.makeTranslation( _position.x, _position.y );
+	// Public API
 
-    } //new
+	/** Create a new shape at give position x,y */
+	public function new(_x:Float = 0., _y:Float = 0., angle:Float = 0., scale = 1.) {
+		_position = new Float2(_x, _y);
+		_rotation = angle;
 
-        /** clean up and destroy this shape */
-    public function destroy():Void {
+		_scale = scale;
 
-        _position = null;
-        _transformMatrix = null;
+		_transformMatrix = new Matrix();
+		_transformMatrix.makeTranslation(_position.x, _position.y);
+	} // new
 
-    } //destroy
+	/** clean up and destroy this shape */
+	public function destroy():Void {
+		_position = null;
+		_transformMatrix = null;
+	} // destroy
 
-//Getters/Setters
+	// Getters/Setters
 
-    function refresh_transform() {
+	function refresh_transform() {
+		_transformMatrix.compose(_position, _rotation_radians, _scale);
+		_dirty = false;
+	}
 
-        _transformMatrix.compose( _position, _rotation_radians, _scale );
-        _dirty = false;
+	// .position
 
-    }
+	function get_position():Float2 {
+		return _position;
+	}
 
-//.position
+	function set_position(v:Float2):Float2 {
+		_position = v;
+		_dirty = true;
+		return _position;
+	}
 
-    function get_position() : Float2 {
-        return _position;
-    }
+	// .x
 
-    function set_position( v : Float2 ) : Float2 {
-        _position = v;
-        _dirty = true;
-        return _position;
-    }
+	function get_x():Float {
+		return _position.x;
+	}
 
-//.x
+	function set_x(x:Float):Float {
+		_position.x = x;
+		_dirty = true;
+		return _position.x;
+	}
 
-    function get_x() : Float {
-        return _position.x;
-    }
+	// .y
 
-    function set_x(x : Float) : Float {
-        _position.x = x;
-        _dirty = true;
-        return _position.x;
-    }
+	function get_y():Float {
+		return _position.y;
+	}
 
-//.y
+	function set_y(y:Float):Float {
+		_position.y = y;
+		_dirty = true;
+		return _position.y;
+	}
 
-    function get_y() : Float {
-        return _position.y;
-    }
+	// .rotation
 
-    function set_y(y : Float) : Float {
-        _position.y = y;
-        _dirty = true;
-        return _position.y;
-    }
+	function get_rotation():Float {
+		return _rotation;
+	}
 
-//.rotation
+	function set_rotation(v:Float):Float {
+		_rotation_radians = v * (Math.PI / 180);
 
-    function get_rotation() : Float {
-        return _rotation;
-    }
+		_dirty = true;
 
-    function set_rotation( v : Float ) : Float {
+		return _rotation = v;
+	} // set_rotation
 
-        _rotation_radians = v * (Math.PI / 180);
+	// .scale
 
-        _dirty = true;
+	function get_scale():Float {
+		return _scale;
+	}
 
-        return _rotation = v;
+	function set_scale(scale:Float):Float {
+		_dirty = true;
+		return _scale = scale;
+	}
 
-    } //set_rotation
+	// .matrix
 
-//.scale
+	function get_matrix():Matrix {
+		if (_dirty) {
+			refresh_transform();
+		}
+		return _transformMatrix;
+	}
 
-    function get_scale():Float {
-        return _scale;
-    }
+	// full set
+	public function set(tx, ty, rot, s) {
+		_position.x = tx;
+		_position.y = ty;
+		_rotation = rot;
+		_rotation_radians = rot * (Math.PI / 180);
+		_scale = s;
 
-    function set_scale( scale : Float ) : Float {
-        _dirty = true;
-        return _scale = scale;
-    }
-
-
-    //.matrix
-
-    function get_matrix(): Matrix {
-        if (_dirty) {
-            refresh_transform();
-        }
-        return _transformMatrix;
-    }
-
-    // full set
-    public function set( tx, ty, rot, s ) {
-        _position.x = tx;
-        _position.y = ty;
-        _rotation = rot;
-        _rotation_radians  = rot * (Math.PI / 180);
-        _scale = s;
-
-        _dirty = true;
-    }
-
-
+		_dirty = true;
+	}
 }

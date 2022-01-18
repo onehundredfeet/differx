@@ -57,13 +57,13 @@ class Collision {
         /** Test a line between two points against a list of shapes.
             When no collision is found, this function returns null.
             Returns a `RayCollision` if a collision is found. */
-    public static inline function rayWithShape( ray:Ray, ? collideWithFlags : UInt, transform : Transform, shape:Shape, ?into:RayCollision ) : RayCollision {
-        if ((collideWithFlags & shape.memberOfFlags) == 0) return null;
+    public static inline function rayWithShape( ray:Ray,  shape:Shape, ?into:RayCollision ) : RayCollision {
+        if ((ray.collideWith & shape.memberOfFlags) == 0) return null;
 
         if (Std.isOfType(shape, Circle)) {
-            return SAT2D.testRayVsCircle(ray, transform, cast shape, into);
+            return SAT2D.testRayVsCircle(ray, cast shape, into);
         }
-        return SAT2D.testRayVsPolygon(ray, transform, cast shape, into);
+        return SAT2D.testRayVsPolygon(ray, cast shape, into);
 
     } //rayShape
 
@@ -82,7 +82,7 @@ class Collision {
             }
 
         for(shape in shapes) {
-            if ((collideWithFlags & shape.memberOfFlags) == 0) continue;
+            if ((collideWith & shape.memberOfFlags) == 0) continue;
 
             var value = results.pull();
             var result = rayWithShape(ray, shape, value);
