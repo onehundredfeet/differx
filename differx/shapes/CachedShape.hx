@@ -23,6 +23,13 @@ class CachedShape {
 
     public function bind(shape : Shape) {
         _shape = shape;
+        if (Std.isOfType(shape, Polygon)) {
+            _polygon = Std.downcast(shape, Polygon);
+            _circle = null;
+        } else if (Std.isOfType(shape, Circle)) {
+            _circle = Std.downcast(shape, Circle);
+            _polygon = null;
+        } 
     }
     public function cache(t : Transform = null) : Shape{
         if (t == null) t = _transform;
