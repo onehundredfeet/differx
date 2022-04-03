@@ -229,20 +229,16 @@ class SAT2D {
 
 	static inline function valid_t(ray:Ray, t:Float) {
 		return if (ray.flags & Ray.TraceFlags.INFINITE == 0) {
-			if (ray.flags & Ray.TraceFlags.BIDIRECTIONAL == 0) 
-                t >= 0.0 && t <= 1.0; 
-            else 
-                t >= -1.0 && t <= 1.0;
+			if (ray.flags & Ray.TraceFlags.BIDIRECTIONAL == 0) t >= 0.0 && t <= 1.0; else t >= -1.0 && t <= 1.0;
 		} else {
-			if (ray.flags & Ray.TraceFlags.BIDIRECTIONAL == 0) 
-                t != Math.POSITIVE_INFINITY && t >= 0.0;
+			if (ray.flags & Ray.TraceFlags.BIDIRECTIONAL == 0) t != Math.POSITIVE_INFINITY && t >= 0.0;
 			else
 				true;
 		}
 	}
 
 	/** Internal api - test a ray against a circle */
-	public static function testRayVsCircle(ray:Ray,  circle:Circle, ?into:RayCollision):RayCollision {
+	public static function testRayVsCircle(ray:Ray, circle:Circle, ?into:RayCollision):RayCollision {
 		var deltaX = ray.end.x - ray.origin.x;
 		var deltaY = ray.end.y - ray.origin.y;
 		var ray2circleX = ray.origin.x - circle.center_x;
@@ -269,6 +265,10 @@ class SAT2D {
 				into.start = t1;
 				into.end = t2;
 
+				if (ray.flags & Ray.TraceFlags.CONTACT_INFO != 0) {
+					into.point = ray.getPoint(t1);
+					into.normal = (into.point - circle.center).normalized();
+				}
 				return into;
 			} //
 		} // d >= 0
@@ -281,6 +281,8 @@ class SAT2D {
 		var min_u = Math.POSITIVE_INFINITY;
 		var max_u = Math.NEGATIVE_INFINITY;
 
+		var min_edge = -1;
+
 		var startX = ray.origin.x;
 		var startY = ray.origin.y;
 		var deltaX = ray.end.x - startX;
@@ -290,34 +292,43 @@ class SAT2D {
 		var v1 = verts[verts.length - 1];
 		var v2 = verts[0];
 
-		var ud = (v2.y - v1.y) * deltaX - (v2.x - v1.x) * deltaY;
-		var ua = rayU(ud, startX, startY, v1.x, v1.y, v2.x - v1.x, v2.y - v1.y);
-		var ub = rayU(ud, startX, startY, v1.x, v1.y, deltaX, deltaY);
+		{
+			final ud = (v2.y - v1.y) * deltaX - (v2.x - v1.x) * deltaY;
 
-		if (ud != 0.0 && ub >= 0.0 && ub <= 1.0) {
-			if (ua < min_u)
-				min_u = ua;
-			if (ua > max_u)
-				max_u = ua;
+			if (ud != 0.0) {
+				final ub = rayU(ud, startX, startY, v1.x, v1.y, deltaX, deltaY);
+				if (ub >= 0.0 && ub <= 1.0) {
+					final ua = rayU(ud, startX, startY, v1.x, v1.y, v2.x - v1.x, v2.y - v1.y);
+					if (ua < min_u) {
+						min_u = ua;
+						min_edge = 0;
+					}
+					if (ua > max_u)
+						max_u = ua;
+				}
+			}
 		}
-
 		for (i in 1...verts.length) {
 			v1 = verts[i - 1];
 			v2 = verts[i];
 
-			ud = (v2.y - v1.y) * deltaX - (v2.x - v1.x) * deltaY;
-			ua = rayU(ud, startX, startY, v1.x, v1.y, v2.x - v1.x, v2.y - v1.y);
-			ub = rayU(ud, startX, startY, v1.x, v1.y, deltaX, deltaY);
+			final ud = (v2.y - v1.y) * deltaX - (v2.x - v1.x) * deltaY;
 
-			if (ud != 0.0 && ub >= 0.0 && ub <= 1.0) {
-				if (ua < min_u)
-					min_u = ua;
-				if (ua > max_u)
-					max_u = ua;
+			if (ud != 0.0) {
+				final ub = rayU(ud, startX, startY, v1.x, v1.y, deltaX, deltaY);
+				if (ub >= 0.0 && ub <= 1.0) {
+					final ua = rayU(ud, startX, startY, v1.x, v1.y, v2.x - v1.x, v2.y - v1.y);
+					if (ua < min_u) {
+						min_u = ua;
+						min_edge = i;
+					}
+					if (ua > max_u)
+						max_u = ua;
+				}
 			}
 		} // each vert
 
-		var valid = valid_t(ray, min_u);
+		var valid =  min_edge > -1 && valid_t(ray, min_u);
 
 		if (valid) {
 			into = (into == null) ? new RayCollision() : into.reset();
@@ -325,6 +336,16 @@ class SAT2D {
 			into.ray = ray;
 			into.start = min_u;
 			into.end = max_u;
+
+			if (ray.flags & Ray.TraceFlags.CONTACT_INFO != 0) {
+				into.point = ray.getPoint(min_u);
+
+				v1 = verts[(min_edge - 1 + verts.length) % verts.length];
+				v2 = verts[min_edge];
+				var e = (v2 - v1).normalized();
+				into.normal = new Float2( e.y, e.x ); // Could be inverted, need to understand winding. Assumes CCW winding
+			}
+
 			return into;
 		}
 

@@ -13,16 +13,18 @@ abstract TraceFlags(UInt) to UInt from UInt {
 	var CONE = 1 << 2; // when stepping, it will use circles to emulate thickness, default is an infinitely thin ray
     var INFINITE = 1 << 3; // Unbounded, default is bounded by distance
     var BIDIRECTIONAL = 1 << 4; // Allows for negative results, default is positive only
+    var CONTACT_INFO = 1 << 5;
 }
 
 /** A ray with a origin, end, direction 
     and infinite state for collision queries. */
-@:build(hvector.VectorBuilder.Float2("origin"))
-@:build(hvector.VectorBuilder.Float2("end"))
-@:build(hvector.VectorBuilder.Float2("dir"))
+#if !macro @:build(hvector.macro.VectorBuilder.embed()) #end
 class Ray {
     public var flags : UInt = 0;
     public var maxDistance : Float;
+    public var origin : Float2;
+    public var end : Float2;
+    public var dir : Float2;
 
 	public var startRadius:Float;
 	public var endRadius:Float;
@@ -58,6 +60,14 @@ class Ray {
         this.startRadius = r0;
         this.endRadius = r1;
         this.coneSteps = steps;
+    }
+
+    public inline function getPoint01( t : Float) :Float2 {
+        return origin * (1. - t) + end * t;
+    }
+
+    public inline function getPoint( t : Float) :Float2 {
+        return origin + dir * t;
     }
 
     //properties

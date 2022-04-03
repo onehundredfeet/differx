@@ -8,9 +8,10 @@ import differx.sat.*;
 import hvector.Float2;
 
 /** A circle collision shape */
-@:build(hvector.VectorBuilder.Float2("center")) //integrates it as flat members instead of a new object
+@:build(hvector.macro.VectorBuilder.embed()) //integrates it as flat members instead of a new object
 class Circle extends Shape {
 
+    public var center : Float2;
         /** The radius of this circle. Set on construction */
     public var radius( get, never ) : Float;
     

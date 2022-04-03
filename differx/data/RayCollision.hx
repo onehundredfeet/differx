@@ -3,9 +3,11 @@ package differx.data;
 import differx.math.*;
 import differx.shapes.*;
 import differx.data.*;
+import hvector.Float2;
 
 /** Ray collision intersection data, obtained by testing a shape and a ray. */
 @:publicFields
+#if !macro @:build(hvector.macro.VectorBuilder.embed()) #end
 class RayCollision {
 
         /** Shape the intersection was with. */
@@ -15,7 +17,14 @@ class RayCollision {
 
         /** Distance along ray that the intersection start at. */
     var start:Float = 0.0;
-        /** Distance along ray that the intersection ended at. */
+
+    // Point at start
+    var point:Float2;
+
+    // normal at start
+    var normal:Float2;
+
+    /** Distance along ray that the intersection ended at. */
     var end:Float = 0.0;
 
     @:noCompletion
@@ -27,6 +36,7 @@ class RayCollision {
         shape = null;
         start = 0.0;
         end = 0.0;
+        normal = Float2.up();
 
         return this;
 
@@ -38,6 +48,7 @@ class RayCollision {
         shape = other.shape;
         start = other.start;
         end = other.end;
+        normal = other.normal;
 
     } //copy_from
 
