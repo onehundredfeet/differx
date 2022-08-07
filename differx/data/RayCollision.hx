@@ -18,6 +18,8 @@ class RayCollision {
         /** Distance along ray that the intersection start at. */
     var start:Float = 0.0;
 
+    var edge:Int = -1;
+
     // Point at start
     var point:Float2;
 
@@ -36,6 +38,7 @@ class RayCollision {
         shape = null;
         start = 0.0;
         end = 0.0;
+        edge = -1;
         normal = Float2.up();
 
         return this;

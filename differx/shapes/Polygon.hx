@@ -14,6 +14,7 @@ class Polygon extends Shape {
     public var vertices ( get, never ) : Float2Array;
 
     var _vertices : Float2Array;
+    var _edgeData : Array<Dynamic>;
 
 
         /** Create a new polygon with a given set of vertices at position x,y. */
@@ -39,6 +40,13 @@ class Polygon extends Shape {
 
     public static function allocate(verts:Int):Polygon {
         return new Polygon( Float2Array.allocate(verts));
+    }
+    public function setVertex( i, x, y ) {
+        vertices[i] = new Float2(x,y);
+    }
+    public function setEdgeData(i, d : Dynamic) {
+        if (_edgeData == null) _edgeData = new Array<Dynamic>();
+        _edgeData[i] = d;
     }
         /** Helper to create an Ngon at x,y with given number of sides, and radius.
             A default radius of 100 if unspecified. Returns a ready made `Polygon` collision `Shape` */

@@ -11,7 +11,7 @@ class Collision {
         /** Test a single shape against another shape.
             When no collision is found between them, this function returns null.
             Returns a `ShapeCollision` if a collision is found. */
-    public static inline function shapeWithShape( shape1:Shape, shape2:Shape, ?into:ShapeCollision, checkFlags : Bool = true ) : ShapeCollision {
+    public static inline function shapeWithShape( shape1:Shape, shape2:Shape, temp:ShapeCollision, ?into:ShapeCollision, checkFlags : Bool = true ) : ShapeCollision {
         if ( checkFlags && ((shape1.collidesWithFlags & shape2.memberOfFlags) == 0)) return null;
         var c1 = Std.isOfType(shape1, Circle);
         var c2 = Std.isOfType(shape2, Circle);
@@ -22,7 +22,7 @@ class Collision {
         } 
 
         if (c2) return SAT2D.testCircleVsPolygon(cast shape2, cast shape1, into, true );
-            return SAT2D.testPolygonVsPolygon(cast shape1, cast shape2, into, false );
+            return SAT2D.testPolygonVsPolygon(cast shape1, cast shape2, temp, into, false );
     } //test
 
     #if false
@@ -30,7 +30,7 @@ class Collision {
             When no collision is found, this function returns empty results, this function will never return null.
             Returns a list of `ShapeCollision` information for each collision found.
             `for(result in results) {  result... }` */
-    public static function shapeWithShapes( shape1:Shape, shapes:Array<Shape>, ?into:Results<ShapeCollision> ) : Results<ShapeCollision> {
+    public static function shapeWithShapes( shape1:Shape, shapes:Array<Shape>, temp : ShapeCollision, ?into:Results<ShapeCollision> ) : Results<ShapeCollision> {
 
         var results: Results<ShapeCollision> =
             if(into != null) {
@@ -42,7 +42,7 @@ class Collision {
         for(other_shape in shapes) {
             if ((shape1.collidesWithFlags & other_shape.memberOfFlags) == 0) continue;
             var value = results.pull();
-            var result = shapeWithShape(shape1, other_shape, value);
+            var result = shapeWithShape(shape1, other_shape, temp, value);
             if(result != null) {
                 results.push(result);
             }

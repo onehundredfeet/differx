@@ -191,28 +191,31 @@ class SAT2D {
 	} // testCircleVsCircle
 
 	/** Internal api - test a polygon against another polygon */
-	static var tmp1:ShapeCollision = new ShapeCollision();
 
-	static var tmp2:ShapeCollision = new ShapeCollision();
+	// THIS IS A HUGE FLAW - Makes testing polygons not thread safe!!!
+//	static var tmp1:ShapeCollision = new ShapeCollision();
+//	static var tmp2:ShapeCollision = new ShapeCollision();
 
-	public static function testPolygonVsPolygon(polygon1:Polygon, polygon2:Polygon, ?into:ShapeCollision, flip:Bool = false):ShapeCollision {
+	public static function testPolygonVsPolygon(polygon1:Polygon, polygon2:Polygon, temp:ShapeCollision, ?into:ShapeCollision, flip:Bool = false):ShapeCollision {
 		into = (into == null) ? new ShapeCollision() : into.reset();
 
-		if (checkPolygons(polygon1, polygon2, tmp1, flip) == null) {
+		temp.reset();
+
+		if (checkPolygons(polygon1, polygon2, into, flip) == null) {
 			return null;
 		}
 
-		if (checkPolygons(polygon2, polygon1, tmp2, !flip) == null) {
+		if (checkPolygons(polygon2, polygon1, temp, !flip) == null) {
 			return null;
 		}
 
 		var result = null, other = null;
-		if (Math.abs(tmp1.overlap) < Math.abs(tmp2.overlap)) {
-			result = tmp1;
-			other = tmp2;
+		if (Math.abs(into.overlap) < Math.abs(temp.overlap)) {
+			result = into;
+			other = temp;
 		} else {
-			result = tmp2;
-			other = tmp1;
+			result = temp;
+			other = into;
 		}
 
 		result.otherOverlap = other.overlap;
@@ -221,7 +224,11 @@ class SAT2D {
 		result.otherunitVectorX = other.unitVectorX;
 		result.otherunitVectorY = other.unitVectorY;
 
-		into.copy_from(result);
+		if (into != result) {
+			into.copy_from(result);
+		}
+
+		//Why?
 		result = other = null;
 
 		return into;
