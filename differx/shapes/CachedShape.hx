@@ -16,6 +16,8 @@ class CachedShape {
     var _circleTransformed : Circle;
     var _shape : Shape;
     public var data : Dynamic;
+    public var name(get,never) : String;
+    function get_name() { return _shape.name;}
 
     public function new( shape : Shape = null, x : Float = 0., y : Float = 0., rot : Float = 0., scale : Float = 1. ) {
         _transform = new Transform(x, y, rot, scale);

@@ -191,12 +191,12 @@ class SAT2D {
 	} // testCircleVsCircle
 
 	/** Internal api - test a polygon against another polygon */
-
 	// THIS IS A HUGE FLAW - Makes testing polygons not thread safe!!!
-//	static var tmp1:ShapeCollision = new ShapeCollision();
-//	static var tmp2:ShapeCollision = new ShapeCollision();
+	//	static var tmp1:ShapeCollision = new ShapeCollision();
+	//	static var tmp2:ShapeCollision = new ShapeCollision();
 
-	public static function testPolygonVsPolygon(polygon1:Polygon, polygon2:Polygon, temp:ShapeCollision, ?into:ShapeCollision, flip:Bool = false):ShapeCollision {
+	public static function testPolygonVsPolygon(polygon1:Polygon, polygon2:Polygon, temp:ShapeCollision, ?into:ShapeCollision,
+			flip:Bool = false):ShapeCollision {
 		into = (into == null) ? new ShapeCollision() : into.reset();
 
 		temp.reset();
@@ -228,7 +228,7 @@ class SAT2D {
 			into.copy_from(result);
 		}
 
-		//Why?
+		// Why?
 		result = other = null;
 
 		return into;
@@ -251,16 +251,39 @@ class SAT2D {
 		var ray2circleX = ray.origin.x - circle.center_x;
 		var ray2circleY = ray.origin.y - circle.center_y;
 
+		var circleSquared = circle.radius * circle.radius;
+
+		// inside check
+		var originDistSquared = vec_lengthsq(ray2circleX, ray2circleY);
+		if (originDistSquared <= circleSquared) {
+			// it's inside
+			into = (into == null) ? new RayCollision() : into.reset();
+
+			into.shape = circle;
+			into.ray = ray;
+			into.start = 0.0;
+			into.end = circle.radius - Math.sqrt(originDistSquared);
+
+			if (ray.flags & Ray.TraceFlags.CONTACT_INFO != 0) {
+				into.point = ray.origin;
+				into.normal = (into.point - circle.center).normalized();
+			}
+			return into;
+		}
+
+
 		var a = vec_lengthsq(deltaX, deltaY);
-		var b = 2 * vec_dot(deltaX, deltaY, ray2circleX, ray2circleY);
-		var c = vec_dot(ray2circleX, ray2circleY, ray2circleX, ray2circleY) - (circle.radius * circle.radius);
+		
+		var b = 2. * vec_dot(deltaX, deltaY, ray2circleX, ray2circleY);
+		var c = vec_dot(ray2circleX, ray2circleY, ray2circleX, ray2circleY) - (circleSquared);
 		var d = b * b - 4 * a * c;
 
+		trace('\t\t\td = ${d} radius ${circle.radius} center is ${circle.center}');
 		if (d >= 0) {
 			d = Math.sqrt(d);
 
-			var t1 = (-b - d) / (2 * a);
-			var t2 = (-b + d) / (2 * a);
+			var t1 = (-b - d) / (2. * a);
+			var t2 = (-b + d) / (2. * a);
 
 			var valid = valid_t(ray, t1);
 
@@ -335,7 +358,7 @@ class SAT2D {
 			}
 		} // each vert
 
-		var valid =  min_edge > -1 && valid_t(ray, min_u);
+		var valid = min_edge > -1 && valid_t(ray, min_u);
 
 		if (valid) {
 			into = (into == null) ? new RayCollision() : into.reset();
@@ -350,7 +373,7 @@ class SAT2D {
 				v1 = verts[(min_edge - 1 + verts.length) % verts.length];
 				v2 = verts[min_edge];
 				var e = (v2 - v1).normalized();
-				into.normal = new Float2( e.y, e.x ); // Could be inverted, need to understand winding. Assumes CCW winding
+				into.normal = new Float2(e.y, e.x); // Could be inverted, need to understand winding. Assumes CCW winding
 			}
 
 			return into;
