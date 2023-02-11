@@ -5,6 +5,7 @@ import differx.shapes.*;
 import differx.data.*;
 import differx.sat.*;
 import UInt;
+import hvector.Float2Array;
 
 class Collision {
 
