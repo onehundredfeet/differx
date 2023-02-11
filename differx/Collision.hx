@@ -131,9 +131,14 @@ class Collision {
 
         /** Test if a given point lands inside the given polygon.
             Returns true if it does, false otherwise. */
-    public static function pointInPoly( x:Float, y:Float, transform : Transform, poly:Polygon ) : Bool {
+    public inline static function pointInPoly( x:Float, y:Float, transform : Transform, poly:Polygon ) : Bool {
+        return pointInVerts(x, y, transform, poly.vertices);
+    } //pointInPoly
 
-        var verts = poly.vertices;
+
+    // Uses the ray casting algorithm to test if a point is inside a polygon.
+    // Counting the amount of times a ray from the point to infinity crosses a line segment.
+    public static function pointInVerts( x:Float, y:Float, transform : Transform, verts:Float2Array ) : Bool {
         var sides:Int = verts.length; //amount of sides the polygon has
 
         var i:Int = 0;
@@ -162,7 +167,6 @@ class Collision {
         return oddNodes;
 
     } //pointInPoly
-
 
 } //Collision
 
