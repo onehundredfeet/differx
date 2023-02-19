@@ -278,7 +278,7 @@ class SAT2D {
 		var c = vec_dot(ray2circleX, ray2circleY, ray2circleX, ray2circleY) - (circleSquared);
 		var d = b * b - 4 * a * c;
 
-		trace('\t\t\td = ${d} radius ${circle.radius} center is ${circle.center}');
+//		trace('\t\t\td = ${d} radius ${circle.radius} center is ${circle.center}');
 		if (d >= 0) {
 			d = Math.sqrt(d);
 
