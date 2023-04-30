@@ -29,7 +29,10 @@ class Shape {
 
     /** The upstream shape if this is a cached shape */
      var _original : Shape;
-        
+    
+     public function getBoundingRadius() : Float {
+        return 0.;
+     }
 //Public API
 
 

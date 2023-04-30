@@ -14,6 +14,7 @@ class Collision {
             Returns a `ShapeCollision` if a collision is found. */
     public static inline function shapeWithShape( shape1:Shape, shape2:Shape, temp:ShapeCollision, ?into:ShapeCollision, checkFlags : Bool = true ) : ShapeCollision {
         if ( checkFlags && ((shape1.collidesWithFlags & shape2.memberOfFlags) == 0)) return null;
+
         var c1 = Std.isOfType(shape1, Circle);
         var c2 = Std.isOfType(shape2, Circle);
 

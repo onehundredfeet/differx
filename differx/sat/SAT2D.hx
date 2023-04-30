@@ -373,7 +373,7 @@ class SAT2D {
 				v1 = verts[(min_edge - 1 + verts.length) % verts.length];
 				v2 = verts[min_edge];
 				var e = (v2 - v1).normalized();
-				into.normal = new Float2(e.y, e.x); // Could be inverted, need to understand winding. Assumes CCW winding
+				into.normal = new Float2(e.x, e.y).perpendicular(); // Could be inverted, need to understand winding. Assumes CCW winding
 			}
 
 			return into;

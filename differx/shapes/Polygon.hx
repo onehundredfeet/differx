@@ -15,13 +15,21 @@ class Polygon extends Shape {
 
     var _vertices : Float2Array;
     var _edgeData : Array<Dynamic>;
-
+    var _boundingRadius : Float;
 
         /** Create a new polygon with a given set of vertices at position x,y. */
     public function new( vertices:Float2Array, ?original : Polygon ) {
         super(original);
         #if differ_autoname name = 'polygon(sides:${vertices.length})'; #end
         _vertices = vertices;
+
+        _boundingRadius = 0.;
+
+        for (i in 0...vertices.length) {
+            var v = vertices[i];
+            var l = v.length();
+            if (l > _boundingRadius) _boundingRadius = l;
+        }
 
     } //new
 
@@ -43,6 +51,8 @@ class Polygon extends Shape {
     }
     public function setVertex( i, x, y ) {
         vertices[i] = new Float2(x,y);
+        var d = vertices[i].length();
+        if (d > _boundingRadius) _boundingRadius = d;
     }
     public function setEdgeData(i, d : Dynamic) {
         if (_edgeData == null) _edgeData = new Array<Dynamic>();
@@ -125,9 +135,16 @@ class Polygon extends Shape {
             into._original = _original;
         }
         var tv = into.vertices;
+        var boundingRadius = 0.;
+
         for(i in 0...vertices.length) {
             tv[i] = t.matrix.transform(_vertices[i]);
+
+            var l = tv[i].length();
+            if (l > boundingRadius) boundingRadius = l;
         }
+
+        into._boundingRadius = boundingRadius;
 
         return into;
     }
@@ -136,4 +153,8 @@ class Polygon extends Shape {
         return _vertices;
     }
 
+    public override function getBoundingRadius() : Float {
+        return _boundingRadius;
+    }
+    
 } //Polygon

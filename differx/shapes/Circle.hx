@@ -49,4 +49,8 @@ class Circle extends Shape {
         return c;
     } //get_transformedRadius
 
+    public override function getBoundingRadius() : Float {
+        return _radius + center.length();
+    }
+
 } //Circle

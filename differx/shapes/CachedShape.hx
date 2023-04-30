@@ -34,6 +34,7 @@ class CachedShape {
             _polygon = null;
         } 
     }
+
     public function cache(t : Transform = null) : Shape{
         if (t == null) t = _transform;
 
@@ -45,7 +46,6 @@ class CachedShape {
             return _circleTransformed;
         }
     }
-
 
     inline function get_transform() : Transform return _transform;
     inline function get_x() : Float return _transform.x;
